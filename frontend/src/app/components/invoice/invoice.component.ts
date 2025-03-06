@@ -4,6 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormBuilder, FormGroup, FormArray, Validators } from '@angular/forms';
 import { CommonModule, DecimalPipe } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 interface InventoryItem {
   _id: string;
@@ -33,7 +34,8 @@ interface Invoice {
   selector: 'app-invoice',
   templateUrl: './invoice.component.html',
   styleUrls: ['./invoice.component.css'],
-  imports : [ReactiveFormsModule, CommonModule]
+  imports: [ReactiveFormsModule, CommonModule, SidebarComponent],
+  standalone: true
 })
 export class InvoiceComponent implements OnInit {
   invoiceForm: FormGroup;
@@ -52,12 +54,11 @@ export class InvoiceComponent implements OnInit {
     private fb: FormBuilder
   ) {
     this.invoiceForm = this.fb.group({
-      customer: ['', Validators.required],
+      name: ['', Validators.required],
       date: ['', Validators.required],
       items: this.fb.array([]),
       paid: [false],
-      subTotal: [0],
-      grandTotal: [0],
+      // Remove subTotal and grandTotal from form as they're calculated by backend
     });
     this.addItem(); // Add initial item row
   }
@@ -84,7 +85,7 @@ export class InvoiceComponent implements OnInit {
 
   removeItem(index: number) {
     this.itemsFormArray.removeAt(index);
-    this.calculateTotals();
+    this.calculateTotals(); // Keep for UI display purposes
   }
 
   onItemChange(index: number) {
@@ -101,9 +102,10 @@ export class InvoiceComponent implements OnInit {
       }
     }
 
-    this.calculateTotals();
+    this.calculateTotals(); // Keep for UI display purposes
   }
 
+  // Keep calculateTotals for UI display only, backend will recalculate
   calculateTotals() {
     const items = this.itemsFormArray.value;
     let subTotal = 0;
@@ -116,44 +118,80 @@ export class InvoiceComponent implements OnInit {
       grandTotal += itemTotal + taxAmount;
     });
 
-    this.invoiceForm.patchValue({ subTotal, grandTotal });
+    // For display purposes only - these values aren't submitted
+    this.invoiceForm.patchValue({ 
+      subTotal: subTotal,
+      grandTotal: grandTotal 
+    }, { emitEvent: false });
   }
 
   onSubmit() {
     if (this.invoiceForm.valid) {
+      // Structure data exactly how the backend expects it
       const invoiceData = {
-        ...this.invoiceForm.value,
+        name: this.invoiceForm.get('name')?.value,
+        date: this.invoiceForm.get('date')?.value,
+        paid: this.invoiceForm.get('paid')?.value,
         items: this.itemsFormArray.value,
       };
-
+  
+      console.log("Invoice Data:", JSON.stringify(invoiceData, null, 2));
+  
       this.http
         .post(`${this.backendUrl}/api/v1/invoice/add-invoice`, invoiceData, {
           headers: new HttpHeaders({
-            Authorization: this.token || '',
+            'Authorization': `Bearer ${this.token || ''}`, // Adding Bearer prefix
             'Content-Type': 'application/json',
           }),
         })
         .subscribe({
-          next: () => {
+          next: (response: any) => {
+            console.log("Invoice added successfully:", response);
             this.isPopupVisible = true;
             this.fetchInvoices();
             this.resetForm();
+            
+            // Auto-close the success popup after 3 seconds
+            setTimeout(() => {
+              this.isPopupVisible = false;
+            }, 3000);
           },
           error: (error) => {
-            console.error('Error adding invoice:', error);
+            console.error("Error adding invoice:", error);
             alert(error.error?.message || 'Failed to add invoice');
           },
         });
+    } else {
+      // Mark all fields as touched to trigger validation errors
+      this.markFormGroupTouched(this.invoiceForm);
+      alert('Please fill in all required fields correctly');
     }
+  }
+  
+  // Helper to mark all form controls as touched
+  markFormGroupTouched(formGroup: FormGroup) {
+    Object.values(formGroup.controls).forEach(control => {
+      control.markAsTouched();
+      
+      if (control instanceof FormGroup) {
+        this.markFormGroupTouched(control);
+      } else if (control instanceof FormArray) {
+        control.controls.forEach(ctrl => {
+          if (ctrl instanceof FormGroup) {
+            this.markFormGroupTouched(ctrl);
+          } else {
+            ctrl.markAsTouched();
+          }
+        });
+      }
+    });
   }
 
   resetForm() {
     this.invoiceForm.reset({
-      customer: '',
+      name: '',
       date: '',
-      paid: false,
-      subTotal: 0,
-      grandTotal: 0,
+      paid: false
     });
 
     while (this.itemsFormArray.length) {
@@ -164,14 +202,15 @@ export class InvoiceComponent implements OnInit {
 
   fetchInventoryItems() {
     this.http
-      .get<{ data: InventoryItem[] }>(`${this.backendUrl}/api/v1/inventory/get-item`, {
+      .get<{ data: { inventory: InventoryItem[] } }>(`${this.backendUrl}/api/v1/inventory/get-item`, {
         headers: new HttpHeaders({
-          Authorization: this.token || '',
+          'Authorization': `Bearer ${this.token || ''}`,
         }),
       })
       .subscribe({
         next: (response) => {
-          this.inventoryItems = response.data;
+          // Adjust based on actual backend response structure
+          this.inventoryItems = response.data.inventory || [];
         },
         error: (error) => {
           console.error('Error fetching inventory:', error);
@@ -185,7 +224,7 @@ export class InvoiceComponent implements OnInit {
         `${this.backendUrl}/api/v1/invoice/get-invoice`,
         {
           headers: new HttpHeaders({
-            Authorization: this.token || '',
+            'Authorization': `Bearer ${this.token || ''}`,
           }),
         }
       )
@@ -220,7 +259,7 @@ export class InvoiceComponent implements OnInit {
         {},
         {
           headers: new HttpHeaders({
-            Authorization: this.token || '',
+            'Authorization': `Bearer ${this.token || ''}`,
           }),
         }
       )

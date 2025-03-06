@@ -1,24 +1,105 @@
-<div class="container">
-    <div class="left">
-        <div class="logo">Bizz<span>Ops</span></div>
-        <h2>Sign Up</h2>
-        <input type="text" placeholder="Full Name">
-        <input type="email" placeholder="Email">
-        <input type="text" placeholder="Business Name">
-        <input type="text" placeholder="Phone No">
-        <input type="text" placeholder="Address">
-        <input type="password" placeholder="Password">
-        <button class="register-btn">Register</button>
-        <div class="signin-link">Already have an account? <a href="#">Sign in</a></div>
+<div class="register-container">
+    <div class="form-container">
+      <img src="assets/logo2.png" alt="BizzOps Logo" class="logo" (click)="navigateToHome()">
+      <form (ngSubmit)="handleRegister()" class="registration-form">
+        <h2 class="form-title">Sign Up</h2>
+        
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Full Name"
+            required
+            [(ngModel)]="name"
+            name="name"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="input-group">
+          <input
+            type="email"
+            placeholder="Email"
+            required
+            [(ngModel)]="email"
+            name="email"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Business Name"
+            required
+            [(ngModel)]="businessName"
+            name="businessName"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Phone No"
+            required
+            [(ngModel)]="phoneNo"
+            name="phoneNo"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="input-group">
+          <input
+            type="text"
+            placeholder="Address"
+            required
+            [(ngModel)]="address"
+            name="address"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="input-group">
+          <input
+            type="password"
+            placeholder="Password"
+            required
+            [(ngModel)]="password"
+            name="password"
+            class="form-input"
+          />
+        </div>
+        
+        <div class="signin-link" (click)="navigateToSignin()">
+          <p>Already have an account? <span class="signin-text">Sign in</span></p>
+        </div>
+        
+        <button type="submit" class="register-button">Register</button>
+      </form>
     </div>
-    <div class="right">
-        <h3>Join Us and Optimize Your Business!</h3>
-        <p>Sign up to streamline your operations and gain valuable insights for your business.</p>
-        <ul class="features">
-            <li>Ultimate Business Tool</li>
-            <li>Run and Scale Your CRM ERP Apps</li>
-            <li>Easily Add And Manage Your Services</li>
-            <li>It Brings Together Your Invoices, Clients, And Leads</li>
-        </ul>
+    
+    <div class="info-container">
+      <div class="info-content">
+        <h1 class="info-title">Join Us and Optimize Your Business!</h1>
+        <p class="info-description">
+          Sign up to streamline your operations and gain valuable insights for your business.
+        </p>
+        <div class="feature-list">
+          <h1 class="feature-item"><i class="fa fa-check"></i>Ultimate Business Tool</h1>
+          <h1 class="feature-item"><i class="fa fa-check"></i>Run and Scale Your CRM ERP Apps</h1>
+          <h1 class="feature-item"><i class="fa fa-check"></i>Easily Add And Manage Your Services</h1>
+          <h1 class="feature-item"><i class="fa fa-check"></i>It Bring Together Your Invoices, Clients And Leads</h1>
+        </div>
+      </div>
     </div>
-</div>  
+    
+    <div *ngIf="showPopup" class="success-popup">
+      <i class="fa fa-check"></i>
+      <span>Registration Successful!</span>
+    </div>
+    
+    <div *ngIf="errorPopup" class="error-popup">
+      <i class="fa fa-lock"></i>
+      <span>{{ errorPopup }}</span>
+    </div>
+  </div>

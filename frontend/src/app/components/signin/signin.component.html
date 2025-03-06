@@ -1,46 +1,58 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Login Page</title>
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="signin.component.css">
-  <!-- Font Awesome for Icons -->
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-</head>
-<body>
-    <!-- BizzOps Logo -->
-    <img src="https://bizzops.vercel.app/assets/logo2-wghqwip9.png" alt="BizzOps Logo" class="logo">
-
-  <div class="container">
-    <!-- Left Side (Login Form) -->
-    <div class="left-section">
-      <h1>Sign In</h1>
-      <br/>
+<div class="login-container">
+  <div class="form-container">
+    <img src="assets/logo2.png" alt="BizzOps Logo" class="logo" (click)="navigateToHome()">
+    <form (ngSubmit)="handleLogin()" class="login-form">
+      <h2 class="form-title">Sign In</h2>
+      
       <div class="input-group">
-        <i class="fas fa-envelope"></i>
-        <input type="email" placeholder="Email">
+        <i class="fa fa-envelope"></i>
+        <input
+          type="text"
+          placeholder="Email"
+          required
+          [(ngModel)]="email"
+          name="email"
+          class="form-input"
+        />
       </div>
+      
       <div class="input-group">
-        <i class="fas fa-lock"></i>
-        <input type="password" placeholder="Password">
+        <i class="fa fa-lock"></i>
+        <input
+          type="password"
+          placeholder="Password"
+          required
+          [(ngModel)]="password"
+          name="password"
+          class="form-input"
+        />
       </div>
-      <p class="signup-link">Don't have an account? <a href="#">Sign up</a></p>
-      <button type="submit">Login</button>
-    </div>
-    <div class="business-info">
-        <h1>Manage Your Business, Smarter and Faster.</h1>
-        <br/>
-        <p>Streamline your operations and gain insights to make informed decisions. Join us and take the first step towards optimizing your business today!</p>
-        <ul>
-            <li>✔ Ultimate Business Tool</li>
-            <li>✔ Run and Scale Your CRM ERP Apps</li>
-            <li>✔ Easily Add And Manage Your Services</li>
-            <li>✔ It Brings Together Your Invoices, Clients, And Leads</li>
-        </ul>
-    </div>  
+      
+      <div class="signup-link" (click)="navigateToSignup()">
+        <p>Don't have an account? <span class="signup-text">Sign up</span></p>
+      </div>
+      
+      <button type="submit" class="login-button">Login</button>
+    </form>
   </div>
-
-</body>
-</html>
+  
+  <div class="info-container">
+    <div class="info-content">
+      <h1 class="info-title">Manage Your Business, Smarter and Faster.</h1>
+      <p class="info-description">
+        Streamline your operations and gain insights to make informed decisions. Join us and take the first step towards optimizing your business today!
+      </p>
+      <div class="feature-list">
+        <h1 class="feature-item"><i class="fa fa-check"></i>Ultimate Business Tool</h1>
+        <h1 class="feature-item"><i class="fa fa-check"></i>Run and Scale Your CRM ERP Apps</h1>
+        <h1 class="feature-item"><i class="fa fa-check"></i>Easily Add And Manage Your Services</h1>
+        <h1 class="feature-item"><i class="fa fa-check"></i>It Bring Together Your Invoices, Clients And Leads</h1>
+      </div>
+    </div>
+  </div>
+  
+  <div *ngIf="errorPopup" class="error-popup">
+    <i class="fa fa-lock"></i>
+    <span>{{ errorPopup }}</span>
+  </div>
+</div>

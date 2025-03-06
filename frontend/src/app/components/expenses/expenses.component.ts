@@ -2,12 +2,14 @@
 import { Component, OnInit } from '@angular/core';
 import axios from 'axios';
 import { FormsModule } from '@angular/forms';
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { CommonModule } from '@angular/common';
 
 @Component({
     selector: 'app-expenses',
     templateUrl: './expenses.component.html',
     styleUrls: ['./expenses.component.css'],
-    imports : [FormsModule]
+    imports : [FormsModule, SidebarComponent, CommonModule]
 })
 export class ExpensesComponent implements OnInit {
     name: string = '';
