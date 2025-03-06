@@ -2,6 +2,8 @@ import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
+import { SidebarComponent } from '../sidebar/sidebar.component';
+import { CommonModule } from '@angular/common';
 
 interface Sale {
   _id: string;
@@ -24,7 +26,7 @@ interface InventoryItem {
   selector: 'app-sales',
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css'],
-  imports : [FormsModule]
+  imports : [FormsModule, SidebarComponent, CommonModule]
 })
 export class SalesComponent implements OnInit {
   sales: Sale[] = [];

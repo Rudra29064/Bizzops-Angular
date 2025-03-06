@@ -1,123 +1,159 @@
+<app-sidebar></app-sidebar>
 <div class="invoice-container">
-    <div class="main-content">
-      <div class="header">
-        <button class="back-button" (click)="navigateToDashboard()">
-          <i class="fa fa-arrow-left"></i> Invoice
-        </button>
-      </div>
-  
-      <div class="invoice-section">
-        <div class="add-invoice-card">
-          <h2>New Invoice</h2>
-          <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
-            <div class="form-row">
+  <div class="main-content">
+    <div class="header">
+      <button class="back-button" (click)="navigateToDashboard()">
+        <i class="fa fa-arrow-left"></i> Invoice
+      </button>
+    </div>
+
+    <div class="invoice-section">
+      <div class="add-invoice-card">
+        <h2>New Invoice</h2>
+        <form [formGroup]="invoiceForm" (ngSubmit)="onSubmit()">
+          <div class="form-row">
+            <div class="input-group">
               <input 
                 type="text" 
-                formControlName="customer" 
+                formControlName="name" 
                 placeholder="Customer" 
                 required
+                [ngClass]="{'invalid': invoiceForm.get('name')?.invalid && invoiceForm.get('name')?.touched}"
               >
+              <small class="error-message" *ngIf="invoiceForm.get('name')?.invalid && invoiceForm.get('name')?.touched">
+                Customer name is required
+              </small>
+            </div>
+            
+            <div class="input-group">
               <input 
                 type="date" 
                 formControlName="date" 
                 required
+                [ngClass]="{'invalid': invoiceForm.get('date')?.invalid && invoiceForm.get('date')?.touched}"
               >
+              <small class="error-message" *ngIf="invoiceForm.get('date')?.invalid && invoiceForm.get('date')?.touched">
+                Date is required
+              </small>
             </div>
-  
-            <div formArrayName="items">
-              <div 
-                *ngFor="let item of itemsFormArray.controls; let i = index" 
-                [formGroupName]="i" 
-                class="item-row"
+          </div>
+
+          <div formArrayName="items">
+            <div 
+              *ngFor="let item of itemsFormArray.controls; let i = index" 
+              [formGroupName]="i" 
+              class="item-row"
+            >
+              <select 
+                formControlName="itemName" 
+                (change)="onItemChange(i)"
+                required
+                [ngClass]="{'invalid': item.get('itemName')?.invalid && item.get('itemName')?.touched}"
               >
-                <select 
-                  formControlName="itemName" 
-                  (change)="onItemChange(i)"
-                  required
+                <option value="">Select Item</option>
+                <option 
+                  *ngFor="let invItem of inventoryItems" 
+                  [value]="invItem.item"
                 >
-                  <option value="">Select Item</option>
-                  <option 
-                    *ngFor="let invItem of inventoryItems" 
-                    [value]="invItem.item"
-                  >
-                    {{invItem.item}} (Stock: {{invItem.stockRemain}})
-                  </option>
-                </select>
-                <input 
-                  type="number" 
-                  formControlName="qty" 
-                  placeholder="Qty" 
-                  required
-                  min="1"
-                >
-                <input 
-                  type="number" 
-                  formControlName="price" 
-                  placeholder="Price" 
-                  required
-                  min="0"
-                >
-                <input 
-                  type="number" 
-                  formControlName="tax" 
-                  placeholder="Tax %" 
-                  required
-                  min="0"
-                >
-                <button 
-                  type="button" 
-                  (click)="removeItem(i)" 
-                  *ngIf="itemsFormArray.length > 1"
-                >
-                  Remove
-                </button>
-              </div>
-            </div>
-  
-            <div class="form-actions">
-              <div class="paid-checkbox">
-                <input 
-                  type="checkbox" 
-                  formControlName="paid"
-                >
-                <label>Paid</label>
-              </div>
+                  {{invItem.item}} (Stock: {{invItem.stockRemain}})
+                </option>
+              </select>
+              
+              <input 
+                type="number" 
+                formControlName="qty" 
+                placeholder="Qty" 
+                required
+                min="1"
+                [ngClass]="{'invalid': item.get('qty')?.invalid && item.get('qty')?.touched}"
+              >
+              
+              <input 
+                type="number" 
+                formControlName="price" 
+                placeholder="Price" 
+                required
+                min="0"
+                [ngClass]="{'invalid': item.get('price')?.invalid && item.get('price')?.touched}"
+              >
+              
+              <input 
+                type="number" 
+                formControlName="tax" 
+                placeholder="Tax %" 
+                required
+                min="0"
+                [ngClass]="{'invalid': item.get('tax')?.invalid && item.get('tax')?.touched}"
+              >
+              
               <button 
                 type="button" 
-                (click)="addItem()"
+                (click)="removeItem(i)" 
+                *ngIf="itemsFormArray.length > 1"
+                class="remove-btn"
               >
-                Add More Item
+                <i class="fa fa-trash"></i>
               </button>
             </div>
-  
-            <div class="totals">
-              <label>Sub Total: ₹{{ invoiceForm.value.subTotal | number:'1.2-2' }}</label>
-              <label>Grand Total: ₹{{ invoiceForm.value.grandTotal | number:'1.2-2' }}</label>
+            
+            <!-- Error message if any item field is invalid -->
+            <div class="error-message" *ngIf="itemsFormArray.invalid && itemsFormArray.touched">
+              All item fields are required with valid values
             </div>
-  
-            <button type="submit">Add Invoice</button>
-          </form>
+          </div>
+
+          <div class="form-actions">
+            <div class="paid-checkbox">
+              <input 
+                type="checkbox" 
+                formControlName="paid"
+                id="paid-checkbox"
+              >
+              <label for="paid-checkbox">Paid</label>
+            </div>
+            <button 
+              type="button" 
+              (click)="addItem()"
+              class="add-item-btn"
+            >
+              Add More Item
+            </button>
+          </div>
+
+          <!-- Changed to reference calculated values directly -->
+          <div class="totals">
+            <label>Sub Total: ₹{{ invoiceForm.get('subTotal')?.value | number:'1.2-2' }}</label>
+            <label>Grand Total: ₹{{ invoiceForm.get('grandTotal')?.value | number:'1.2-2' }}</label>
+          </div>
+
+          <button type="submit" [disabled]="invoiceForm.invalid">Add Invoice</button>
+        </form>
+      </div>
+
+      <div class="invoice-table">
+        <h2>Invoices</h2>
+        <div *ngIf="invoices.length === 0" class="no-invoices">
+          No invoices found
         </div>
-  
-        <div class="invoice-table">
-          <h2>Invoices</h2>
-          <table>
-            <thead>
-              <tr>
-                <th>Customer Name</th>
-                <th>Items</th>
-                <th>Subtotal</th>
-                <th>Grand Total</th>
-                <th>Paid</th>
-                <th>Date</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <tr *ngFor="let invoice of invoices">
-                <td>{{ invoice.name }}</td>
-                <td>
-                  <table>
+        <table *ngIf="invoices.length > 0">
+          <thead>
+            <tr>
+              <th>Customer Name</th>
+              <th>Items</th>
+              <th>Subtotal</th>
+              <th>Grand Total</th>
+              <th>Paid</th>
+              <th>Date</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let invoice of invoices">
+              <td>{{ invoice.name }}</td>
+              <td>
+                <div class="items-summary">
+                  {{ invoice.items.length }} item(s)
+                  <table class="items-detail">
                     <thead>
                       <tr>
                         <th>Item Name</th>
@@ -135,54 +171,95 @@
                       </tr>
                     </tbody>
                   </table>
-                </td>
-                <td>₹{{ invoice.subTotal | number:'1.2-2' }}</td>
-                <td>₹{{ invoice.grandTotal | number:'1.2-2' }}</td>
-                <td>
-                  <span [ngClass]="{
-                    'paid-badge': invoice.paid, 
-                    'unpaid-badge': !invoice.paid
-                  }">
-                    {{ invoice.paid ? 'Yes' : 'No' }}
-                  </span>
-                </td>
-                <td>{{ invoice.date | date:'shortDate' }}</td>
-                <td>
-                  <button (click)="openModal(invoice)">Details</button>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Invoice Details Modal -->
-    <div *ngIf="isModalOpen && selectedInvoice" class="modal">
-      <div class="modal-content">
-        <h2>Invoice Details</h2>
-        <div class="invoice-details">
-          <p><strong>Customer Name:</strong> {{ selectedInvoice?.name }}</p>
-          <p><strong>Subtotal:</strong> ₹{{ selectedInvoice?.subTotal | number:'1.2-2' }}</p>
-          <p><strong>Date:</strong> {{ selectedInvoice?.date | date:'shortDate' }}</p>
-          <p><strong>Grand Total:</strong> ₹{{ selectedInvoice?.grandTotal | number:'1.2-2' }}</p>
-          <p><strong>Paid:</strong> {{ selectedInvoice?.paid ? 'Yes' : 'No' }}</p>
-        </div>
-        <div class="modal-actions">
-          <button (click)="closeModal()">Close</button>
-          <button (click)="togglePaidStatus()">
-            {{ selectedInvoice?.paid ? 'Mark as Unpaid' : 'Mark as Paid' }}
-          </button>
-        </div>
-      </div>
-    </div>
-  
-    <!-- Success Popup -->
-    <div *ngIf="isPopupVisible" class="popup">
-      <div class="popup-content">
-        <h2>Success!</h2>
-        <p>Invoice added successfully.</p>
-        <button (click)="isPopupVisible = false">Close</button>
+                </div>
+              </td>
+              <td>₹{{ invoice.subTotal | number:'1.2-2' }}</td>
+              <td>₹{{ invoice.grandTotal | number:'1.2-2' }}</td>
+              <td>
+                <span [ngClass]="{
+                  'paid-badge': invoice.paid, 
+                  'unpaid-badge': !invoice.paid
+                }">
+                  {{ invoice.paid ? 'Paid' : 'Unpaid' }}
+                </span>
+              </td>
+              <td>{{ invoice.date | date:'shortDate' }}</td>
+              <td>
+                <button (click)="openModal(invoice)" class="details-btn">Details</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
       </div>
     </div>
   </div>
+
+  <!-- Invoice Details Modal -->
+  <div *ngIf="isModalOpen && selectedInvoice" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2>Invoice Details</h2>
+        <button class="close-btn" (click)="closeModal()">&times;</button>
+      </div>
+      <div class="invoice-details">
+        <p><strong>Customer Name:</strong> {{ selectedInvoice?.name }}</p>
+        <p><strong>Date:</strong> {{ selectedInvoice?.date | date:'mediumDate' }}</p>
+        <p><strong>Status:</strong> 
+          <span [ngClass]="{
+            'paid-badge': selectedInvoice?.paid, 
+            'unpaid-badge': !selectedInvoice?.paid
+          }">
+            {{ selectedInvoice?.paid ? 'Paid' : 'Unpaid' }}
+          </span>
+        </p>
+        
+        <h3>Items</h3>
+        <table class="items-table">
+          <thead>
+            <tr>
+              <th>Item</th>
+              <th>Quantity</th>
+              <th>Price</th>
+              <th>Tax (%)</th>
+              <th>Total</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let item of selectedInvoice?.items">
+              <td>{{ item.itemName }}</td>
+              <td>{{ item.qty }}</td>
+              <td>₹{{ item.price | number:'1.2-2' }}</td>
+              <td>{{ item.tax }}%</td>
+              <td>₹{{ (item.qty * item.price) | number:'1.2-2' }}</td>
+            </tr>
+          </tbody>
+          <tfoot>
+            <tr>
+              <td colspan="4" class="text-right"><strong>Subtotal:</strong></td>
+              <td>₹{{ selectedInvoice?.subTotal | number:'1.2-2' }}</td>
+            </tr>
+            <tr>
+              <td colspan="4" class="text-right"><strong>Grand Total:</strong></td>
+              <td>₹{{ selectedInvoice?.grandTotal | number:'1.2-2' }}</td>
+            </tr>
+          </tfoot>
+        </table>
+      </div>
+      <div class="modal-actions">
+        <button (click)="togglePaidStatus()" class="toggle-status-btn">
+          {{ selectedInvoice?.paid ? 'Mark as Unpaid' : 'Mark as Paid' }}
+        </button>
+        <button (click)="closeModal()" class="close-modal-btn">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Success Popup -->
+  <div *ngIf="isPopupVisible" class="popup">
+    <div class="popup-content">
+      <div class="success-icon">✓</div>
+      <h2>Success!</h2>
+      <p>Invoice added successfully.</p>
+    </div>
+  </div>
+</div>  

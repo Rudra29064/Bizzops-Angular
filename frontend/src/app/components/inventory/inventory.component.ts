@@ -173,8 +173,9 @@
 import { Component, OnInit, Inject, PLATFORM_ID } from '@angular/core';
 import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Router } from '@angular/router';
-import { isPlatformBrowser } from '@angular/common';
+import { CommonModule, isPlatformBrowser } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 interface InventoryItem {
   _id?: string;
@@ -188,7 +189,7 @@ interface InventoryItem {
   selector: 'app-inventory',
   templateUrl: './inventory.component.html',
   styleUrls: ['./inventory.component.css'],
-  imports: [FormsModule]
+  imports: [FormsModule, SidebarComponent, CommonModule]
 })
 export class InventoryComponent implements OnInit {
   inventoryItems: InventoryItem[] = [];

@@ -1,19 +1,18 @@
-
 <body>
     <header>
         <div class="logo">
             <img src="https://bizzops.vercel.app/assets/logo2-wghqwip9.png">
         </div>
         <nav>
-            <button class="btn">Sign In</button>
-            <button class="btn">Sign Up</button>
-            <button class="btn">Pricing</button>
+            <button class="btn" [routerLink]="['/signin']">Sign In</button>
+            <button class="btn" [routerLink]="['/signup']">Sign Up</button>
+            <button class="btn" [routerLink]="['/pricing']">Pricing</button>
         </nav>
     </header>
     <main>
         <section class="main">
             <div class="main-content">
-                <p>Manage Your Business, Smarter and Faster with </p >
+                <p>Manage Your Business, Smarter and Faster with </p>
                 <h1 class="heading">BizzOps</h1>
                 <p>BizzOps is the ultimate business management platform, featuring a real-time dashboard, comprehensive reports, and insightful analysis tools. Streamline inventory, finance, and staff management to enhance efficiency and make informed decisions for your business success.</p>
                 <button class="demo-btn">Request a Demo</button>
@@ -21,7 +20,7 @@
                 <p class="p1">Join thousands of businesses who have transformed their operations with BizzOps. Start streamlining your business today!</p>
             </div>
             <div class="main-image">
-                <img src="https://bizzops.vercel.app/assets/one-D6s8X-nj.png" >
+                <img src="https://bizzops.vercel.app/assets/one-D6s8X-nj.png">
             </div>
         </section>
     </main>

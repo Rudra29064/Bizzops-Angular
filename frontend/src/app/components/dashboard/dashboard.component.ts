@@ -94,13 +94,14 @@ import { FontAwesomeModule } from '@fortawesome/angular-fontawesome';
 import { faChartGantt, faMoneyBill1, faDollar, faWallet } from '@fortawesome/free-solid-svg-icons';
 import { catchError, forkJoin, of } from 'rxjs';
 import { isPlatformBrowser } from '@angular/common';
+import { SidebarComponent } from '../sidebar/sidebar.component';
 
 @Component({
   selector: 'app-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.css'],
   standalone: true,
-  imports: [NgIf, FontAwesomeModule, DecimalPipe]
+  imports: [NgIf, FontAwesomeModule, DecimalPipe, SidebarComponent]
 })
 export class DashboardComponent implements OnInit {
   // Icons
