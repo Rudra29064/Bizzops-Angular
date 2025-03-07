@@ -26,22 +26,23 @@ interface InventoryItem {
   selector: 'app-sales',
   templateUrl: './sales.component.html',
   styleUrls: ['./sales.component.css'],
-  imports : [FormsModule, SidebarComponent, CommonModule]
+  imports: [FormsModule, SidebarComponent, CommonModule]
 })
 export class SalesComponent implements OnInit {
   sales: Sale[] = [];
   inventory: InventoryItem[] = [];
   isPopupVisible = false;
+  errorMessage = '';
 
   // Form fields
-  product = '';
+  productId = ''; // Store the _id of the selected product
   price = '';
   profitInPercent = '';
   qty = '';
   date = '';
 
   constructor(
-    private router: Router, 
+    private router: Router,
     private http: HttpClient
   ) {}
 
@@ -79,7 +80,7 @@ export class SalesComponent implements OnInit {
       .subscribe({
         next: (response) => {
           if (response.success) {
-            this.sales = response.data.sort((a: Sale, b: Sale) => 
+            this.sales = response.data.sort((a: Sale, b: Sale) =>
               new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
             );
           }
@@ -95,18 +96,37 @@ export class SalesComponent implements OnInit {
   }
 
   handleAddSales() {
+    this.errorMessage = ''; // Reset error message
+
+    // Validate input
+    if (!this.productId || !this.price || !this.profitInPercent || !this.qty || !this.date) {
+      this.errorMessage = 'All fields are required.';
+      return;
+    }
+
+    const selectedProduct = this.inventory.find(item => item._id === this.productId);
+    if (!selectedProduct) {
+      this.errorMessage = 'Invalid product selected.';
+      return;
+    }
+
+    if (selectedProduct.stockRemain < Number(this.qty)) {
+      this.errorMessage = 'Not enough stock available.';
+      return;
+    }
+
     const token = localStorage.getItem('accessToken');
     const headers = new HttpHeaders({
       'Authorization': `${token}`,
       'Content-Type': 'application/json'
     });
 
-    const data = { 
-      product: this.product, 
-      price: this.price, 
-      profitInPercent: this.profitInPercent, 
-      qty: this.qty, 
-      date: this.date 
+    const data = {
+      product: this.productId, // Send product ID instead of name
+      price: Number(this.price),
+      profitInPercent: Number(this.profitInPercent),
+      qty: Number(this.qty),
+      date: this.date
     };
 
     this.http.post<any>('http://localhost:8000/api/v1/sales/add-sale', data, { headers })
@@ -118,7 +138,7 @@ export class SalesComponent implements OnInit {
             this.isPopupVisible = true;
 
             // Reset form
-            this.product = '';
+            this.productId = '';
             this.price = '';
             this.profitInPercent = '';
             this.qty = '';
@@ -127,6 +147,7 @@ export class SalesComponent implements OnInit {
         },
         error: (error) => {
           console.error("Error while adding product", error);
+          this.errorMessage = error.error?.message || "Failed to add sale.";
         }
       });
   }
